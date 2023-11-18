@@ -4,6 +4,13 @@
  */
 package com.iplacex.resthola;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -11,11 +18,49 @@ import javax.ws.rs.core.Response;
 
 @Path("/hola")
 public class HolaService {
+    
+    private final Gson gson = new Gson();
+
+    public class HolaResponse {
+        private String message;
+
+        public HolaResponse(String message) {
+            this.message = message;
+        }
+
+        // You can add getters/setters if needed
+    }
 
     @GET
-    @Path("/{param}")
-    public Response getMsg(@PathParam("param") String msg) {
-        String output = "Hola: " + msg;
-        return Response.status(200).entity(output).build();
+    @Path("/{id}")
+    public Response getMsg(@PathParam("id") int id) {
+        HolaResponse response = new HolaResponse("Hola: " + id);
+        String jsonResponse = gson.toJson(response);
+
+        return Response.status(200).entity(jsonResponse).build();
     }
+    
+    /*
+    @GET
+    public String consultarInsumos() {
+        String salida;
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        Response r = new Response();
+
+        try {
+            JsonReader reader = new JsonReader(new FileReader("productos.json"));
+            List<Insumo> insumos = gson.fromJson(reader, new TypeToken<List<Insumo>>() {
+            }.getType());
+            r.setStatus(200);
+            r.setData(insumos);
+        } catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
+            r.setStatus(500);
+            r.setData("Error reading 'productos.json'");
+        }
+
+        salida = gson.toJson(r);
+        return salida;
+    }
+
+    */
 }
