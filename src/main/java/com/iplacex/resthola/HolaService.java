@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Iterator;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.PUT;
 
 @Path("/hola")
 public class HolaService {
@@ -51,12 +52,11 @@ public class HolaService {
             Insumo nuevoInsumo = gson.fromJson(requestBody, Insumo.class);
 
             boolean codigoExists = false;
-            
+
             JsonReader reader = new JsonReader(new FileReader("productos.json"));
             List<Insumo> insumos = gson.fromJson(reader, new TypeToken<List<Insumo>>() {
             }.getType());
 
-            boolean removed = false;
             for (Insumo insumo : insumos) {
                 if (insumo.getCodigo() == nuevoInsumo.getCodigo()) {
                     codigoExists = true;
@@ -66,7 +66,7 @@ public class HolaService {
             if (codigoExists) {
                 ErrorResponse response = new ErrorResponse("Resource with the given code already exists");
                 String jsonResponse = gson.toJson(response);
-                return Response.status(409).entity(jsonResponse).build(); // HTTP 409 Conflict
+                return Response.status(409).entity(jsonResponse).build();
             }
 
             insumos.add(nuevoInsumo);
@@ -77,11 +77,62 @@ public class HolaService {
 
             ErrorResponse response = new ErrorResponse("Resource created successfully");
             String jsonResponse = gson.toJson(response);
-            return Response.status(201).entity(jsonResponse).build(); // HTTP 201 Created
+            return Response.status(201).entity(jsonResponse).build();
         } catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
-            ErrorResponse response = new ErrorResponse("Error creating resource");
+            ErrorResponse response = new ErrorResponse("internal error");
             String jsonResponse = gson.toJson(response);
-            return Response.status(500).entity(jsonResponse).build(); // HTTP 500 Internal Server Error
+            return Response.status(500).entity(jsonResponse).build();
+        }
+    }
+
+    @PUT
+    @Path("/{codigo}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response modificarInsumo(@PathParam("codigo") int codigo, String requestBody) throws IOException {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+
+        try {
+            Insumo nuevoInsumo = gson.fromJson(requestBody, Insumo.class);
+
+            JsonReader reader = new JsonReader(new FileReader("productos.json"));
+            List<Insumo> insumos = gson.fromJson(reader, new TypeToken<List<Insumo>>() {
+            }.getType());
+
+           
+            Insumo insumoFound = null;
+            int insumoPosition = 0;
+            for (int i = 0; i < insumos.size(); i++) {
+                Insumo currentInsumo = insumos.get(i);
+                if (currentInsumo.getCodigo() == codigo) {
+                    insumoFound = currentInsumo;
+                    insumoPosition = 0;
+                    break;
+                }
+            }
+
+            if (insumoFound == null) {
+                ErrorResponse response = new ErrorResponse("Resource with the given code does not exists to modify");
+                String jsonResponse = gson.toJson(response);
+                return Response.status(409).entity(jsonResponse).build();
+            }
+
+            insumoFound.setNombre(nuevoInsumo.getNombre());
+            insumoFound.setValor(nuevoInsumo.getValor());
+            
+            insumos.set(insumoPosition, nuevoInsumo);
+
+            try (Writer writer = new FileWriter("productos.json")) {
+                gson.toJson(insumos, writer);
+            }
+
+            ErrorResponse response = new ErrorResponse("Resource modified successfully");
+            String jsonResponse = gson.toJson(response);
+            return Response.status(201).entity(jsonResponse).build();
+        } catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
+            ErrorResponse response = new ErrorResponse("internal error");
+            String jsonResponse = gson.toJson(response);
+            return Response.status(500).entity(jsonResponse).build();
         }
     }
 
@@ -120,7 +171,7 @@ public class HolaService {
                 return Response.status(409).entity(jsonResponse).build();
             }
         } catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
-            ErrorResponse response = new ErrorResponse("error reading 'productos.json'");
+            ErrorResponse response = new ErrorResponse("internal error");
             String jsonResponse = gson.toJson(response);
             return Response.status(500).entity(jsonResponse).build();
         }
