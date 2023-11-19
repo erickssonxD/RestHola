@@ -106,7 +106,7 @@ public class HolaService {
                 Insumo currentInsumo = insumos.get(i);
                 if (currentInsumo.getCodigo() == codigo) {
                     insumoFound = currentInsumo;
-                    insumoPosition = 0;
+                    insumoPosition = i;
                     break;
                 }
             }
