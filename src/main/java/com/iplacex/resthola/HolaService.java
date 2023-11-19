@@ -41,23 +41,50 @@ public class HolaService {
         }
     }
 
-    /*
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createInsumo(Insumo insumo) {
+    public Response crearInsumo(String requestBody) throws IOException {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
 
         try {
-            String jsonResponse = gson.toJson(insumo);
-            return Response.status(201).entity(jsonResponse).build();
-        } catch (Exception e) {
-            ErrorResponse response = new ErrorResponse("Error processing the request");
+            Insumo nuevoInsumo = gson.fromJson(requestBody, Insumo.class);
+
+            boolean codigoExists = false;
+            
+            JsonReader reader = new JsonReader(new FileReader("productos.json"));
+            List<Insumo> insumos = gson.fromJson(reader, new TypeToken<List<Insumo>>() {
+            }.getType());
+
+            boolean removed = false;
+            for (Insumo insumo : insumos) {
+                if (insumo.getCodigo() == nuevoInsumo.getCodigo()) {
+                    codigoExists = true;
+                }
+            }
+
+            if (codigoExists) {
+                ErrorResponse response = new ErrorResponse("Resource with the given code already exists");
+                String jsonResponse = gson.toJson(response);
+                return Response.status(409).entity(jsonResponse).build(); // HTTP 409 Conflict
+            }
+
+            insumos.add(nuevoInsumo);
+
+            try (Writer writer = new FileWriter("productos.json")) {
+                gson.toJson(insumos, writer);
+            }
+
+            ErrorResponse response = new ErrorResponse("Resource created successfully");
             String jsonResponse = gson.toJson(response);
-            return Response.status(500).entity(jsonResponse).build();
+            return Response.status(201).entity(jsonResponse).build(); // HTTP 201 Created
+        } catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
+            ErrorResponse response = new ErrorResponse("Error creating resource");
+            String jsonResponse = gson.toJson(response);
+            return Response.status(500).entity(jsonResponse).build(); // HTTP 500 Internal Server Error
         }
     }
-     */
+
     @DELETE
     @Path("/{codigo}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -119,11 +146,11 @@ public class HolaService {
             }
 
             if (foundInsumo != null) {
-                String jsonResponse = gson.toJson(foundInsumo); // Convert to JSON explicitly
+                String jsonResponse = gson.toJson(foundInsumo);
                 return Response.status(200).entity(jsonResponse).build();
             } else {
                 ErrorResponse response = new ErrorResponse("Not found");
-                String jsonResponse = gson.toJson(response); // Convert to JSON explicitly
+                String jsonResponse = gson.toJson(response);
                 return Response.status(400).entity(jsonResponse).build();
             }
         } catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
@@ -143,7 +170,7 @@ public class HolaService {
             List<Insumo> insumos = gson.fromJson(reader, new TypeToken<List<Insumo>>() {
             }.getType());
 
-            String jsonResponse = gson.toJson(insumos); // Convert to JSON explicitly
+            String jsonResponse = gson.toJson(insumos);
             return Response.status(200).entity(jsonResponse).build();
         } catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
             ErrorResponse response = new ErrorResponse("error reading 'productos.json'");
@@ -152,27 +179,4 @@ public class HolaService {
         }
     }
 
-    /*
-    @GET
-    public String consultarInsumos() {
-        String salida;
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-        Response r = new Response();
-
-        try {
-            JsonReader reader = new JsonReader(new FileReader("productos.json"));
-            List<Insumo> insumos = gson.fromJson(reader, new TypeToken<List<Insumo>>() {
-            }.getType());
-            r.setStatus(200);
-            r.setData(insumos);
-        } catch (JsonIOException | JsonSyntaxException | FileNotFoundException e) {
-            r.setStatus(500);
-            r.setData("Error reading 'productos.json'");
-        }
-
-        salida = gson.toJson(r);
-        return salida;
-    }
-
-     */
 }
