@@ -30,7 +30,7 @@ import java.util.Iterator;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.PUT;
 
-@Path("/hola")
+@Path("/insumos")
 public class HolaService {
 
     public class ErrorResponse {
