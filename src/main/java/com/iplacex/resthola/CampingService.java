@@ -23,6 +23,8 @@ public class CampingService {
     private static List<Usuario> usuariosList = new ArrayList<>();
     private static List<Representante> representantesList = new ArrayList<>();
     private static List<TipoAlojamiento> tipoAlojamientosList = new ArrayList<>();
+    private static List<TipoVehiculo> tipoVehiculosList = new ArrayList<>();
+
     private static boolean didRun = false;
 
     @PostConstruct
@@ -41,6 +43,10 @@ public class CampingService {
             tipoAlojamientosList.add(new TipoAlojamiento(1, "Camping"));
             tipoAlojamientosList.add(new TipoAlojamiento(2, "Cabaña"));
             tipoAlojamientosList.add(new TipoAlojamiento(3, "Departamento"));
+
+            tipoVehiculosList.add(new TipoVehiculo(1, "SUV"));
+            tipoVehiculosList.add(new TipoVehiculo(2, "Sedan"));
+            tipoVehiculosList.add(new TipoVehiculo(3, "Hatchback"));
 
             didRun = true;
         }
@@ -96,6 +102,12 @@ public class CampingService {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
         TipoAlojamiento nuevoTipoAlojamiento = gson.fromJson(requestBody, TipoAlojamiento.class);
 
+        if (nuevoTipoAlojamiento.getIdTipoAlojamiento() <= 0) {
+            ResponseRequired requiredResponse = new ResponseRequired(400, "IdTipoAlojamiento must be a positive integer");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(400).entity(jsonResponse).build();
+        }
+
         boolean exists = false;
         for (TipoAlojamiento tipo : tipoAlojamientosList) {
             if (tipo.getIdTipoAlojamiento() == nuevoTipoAlojamiento.getIdTipoAlojamiento()) {
@@ -110,10 +122,52 @@ public class CampingService {
             String jsonResponse = gson.toJson(requiredResponse);
             return Response.status(200).entity(jsonResponse).build();
         } else {
-            ResponseRequired requiredResponse = new ResponseRequired(400, "IdTipoAlojamiento already exists");
+            ResponseRequired requiredResponse = new ResponseRequired(409, "IdTipoAlojamiento already exists");
             String jsonResponse = gson.toJson(requiredResponse);
-            return Response.status(400).entity(jsonResponse).build();
+            return Response.status(409).entity(jsonResponse).build();
         }
     }
 
+    @GET
+    @Path("/vehiculos")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllTipoVehiculos() {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        ResponseRequired requiredResponse = new ResponseRequired(200, tipoVehiculosList);
+        String jsonResponse = gson.toJson(requiredResponse);
+        return Response.status(200).entity(jsonResponse).build();
+    }
+
+    @POST
+    @Path("/vehiculos")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addTipoVehiculo(String requestBody) {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        TipoVehiculo nuevoTipoVehiculo = gson.fromJson(requestBody, TipoVehiculo.class);
+
+        if (nuevoTipoVehiculo.getIdTipoVehiculo() <= 0) {
+            ResponseRequired requiredResponse = new ResponseRequired(400, "IdTipoVehiculo must be a positive integer");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(400).entity(jsonResponse).build();
+        }
+
+        boolean exists = false;
+        for (TipoVehiculo tipo : tipoVehiculosList) {
+            if (tipo.getIdTipoVehiculo() == nuevoTipoVehiculo.getIdTipoVehiculo()) {
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists) {
+            tipoVehiculosList.add(nuevoTipoVehiculo);
+            ResponseRequired requiredResponse = new ResponseRequired(200, "TipoVehiculo added successfully");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(409, "IdTipoVehiculo already exists");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(409).entity(jsonResponse).build();
+        }
+    }
 }
