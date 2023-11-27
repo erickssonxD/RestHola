@@ -15,7 +15,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Iterator;
 import javax.annotation.PostConstruct;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.PathParam;
 
 @Path("/camping")
 public class CampingService {
@@ -86,7 +89,7 @@ public class CampingService {
     }
 
     @GET
-    @Path("/alojamientos")
+    @Path("/tipo-alojamientos")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllAlojamientos() {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
@@ -96,7 +99,7 @@ public class CampingService {
     }
 
     @POST
-    @Path("/alojamientos")
+    @Path("/tipo-alojamientos")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addTipoAlojamiento(String requestBody) {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
@@ -129,7 +132,7 @@ public class CampingService {
     }
 
     @GET
-    @Path("/vehiculos")
+    @Path("/tipo-vehiculos")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllTipoVehiculos() {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
@@ -139,7 +142,7 @@ public class CampingService {
     }
 
     @POST
-    @Path("/vehiculos")
+    @Path("/tipo-vehiculos")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addTipoVehiculo(String requestBody) {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
@@ -170,4 +173,55 @@ public class CampingService {
             return Response.status(409).entity(jsonResponse).build();
         }
     }
+
+    @DELETE
+    @Path("/tipo-vehiculos/{id}")
+    public Response removeTipoVehiculoById(@PathParam("id") int id) {
+        boolean removed = false;
+        for (Iterator<TipoVehiculo> iterator = tipoVehiculosList.iterator(); iterator.hasNext();) {
+            TipoVehiculo tipo = iterator.next();
+            if (tipo.getIdTipoVehiculo() == id) {
+                iterator.remove();
+                removed = true;
+                break;
+            }
+        }
+        if (removed) {
+            ResponseRequired requiredResponse = new ResponseRequired(200, "TipoVehiculo removed successfully");
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(404, "TipoVehiculo not found");
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
+    }
+
+    @DELETE
+    @Path("/tipo-alojamientos/{id}")
+    public Response removeTipoAlojamientoById(@PathParam("id") int id) {
+        boolean removed = false;
+        for (Iterator<TipoAlojamiento> iterator = tipoAlojamientosList.iterator(); iterator.hasNext();) {
+            TipoAlojamiento tipo = iterator.next();
+            if (tipo.getIdTipoAlojamiento() == id) {
+                iterator.remove();
+                removed = true;
+                break;
+            }
+        }
+        if (removed) {
+            ResponseRequired requiredResponse = new ResponseRequired(200, "TipoAlojamiento removed successfully");
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(404, "TipoAlojamiento not found");
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
+    }
+
 }
