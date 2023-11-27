@@ -523,13 +523,13 @@ public class CampingService {
             String jsonResponse = gson.toJson(requiredResponse);
             return Response.status(409).entity(jsonResponse).build();
         }
-        
+
         if (nuevoAlojamiento.getDias() < 1) {
             ResponseRequired requiredResponse = new ResponseRequired(409, "Dias must be greater than 0");
             String jsonResponse = gson.toJson(requiredResponse);
             return Response.status(409).entity(jsonResponse).build();
         }
-        
+
         LocalDateTime currentDateTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDateTime = currentDateTime.format(formatter);
@@ -539,5 +539,30 @@ public class CampingService {
         ResponseRequired requiredResponse = new ResponseRequired(200, "Alojamiento added successfully");
         String jsonResponse = gson.toJson(requiredResponse);
         return Response.status(200).entity(jsonResponse).build();
+    }
+
+    @GET
+    @Path("/alojamientos/nombreagrupacion/{nombre}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAlojamientoByNombreAgrupacion(@PathParam("nombre") String nombreAgrupacion) {
+        List<Alojamiento> alojamientosByNombreAgrupacion = new ArrayList<>();
+
+        for (Alojamiento alojamiento : alojamientosList) {
+            if (alojamiento.getNombreAgrupacion().equalsIgnoreCase(nombreAgrupacion)) {
+                alojamientosByNombreAgrupacion.add(alojamiento);
+            }
+        }
+
+        if (!alojamientosByNombreAgrupacion.isEmpty()) {
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            ResponseRequired requiredResponse = new ResponseRequired(200, alojamientosByNombreAgrupacion);
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(404, "No Alojamiento found for the given NombreAgrupacion");
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
     }
 }
