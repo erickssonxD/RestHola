@@ -55,6 +55,10 @@ public class CampingService {
             tipoVehiculosList.add(new TipoVehiculo(2, "Sedan"));
             tipoVehiculosList.add(new TipoVehiculo(3, "Hatchback"));
 
+            alojamientosList.add(new Alojamiento("1-9", "Agrupacion1", 1, 1, "2023-01-01", 3));
+            alojamientosList.add(new Alojamiento("2-7", "Agrupacion2", 2, 2, "2023-02-15", 5));
+            alojamientosList.add(new Alojamiento("3-5", "Agrupacion3", 3, 1, "2023-03-20", 2));
+
             didRun = true;
         }
     }
