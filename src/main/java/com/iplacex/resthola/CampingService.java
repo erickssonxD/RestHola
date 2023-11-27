@@ -79,4 +79,13 @@ public class CampingService {
         return Response.status(200).entity(jsonResponse).build();
     }
 
+    @GET
+    @Path("/alojamientos")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllAlojamientos() {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        ResponseRequired requiredResponse = new ResponseRequired(200, tipoAlojamientosList);
+        String jsonResponse = gson.toJson(requiredResponse);
+        return Response.status(200).entity(jsonResponse).build();
+    }
 }
