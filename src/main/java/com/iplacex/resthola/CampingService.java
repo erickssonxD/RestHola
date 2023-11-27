@@ -6,6 +6,8 @@ package com.iplacex.resthola;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -28,6 +30,7 @@ public class CampingService {
     private static List<Representante> representantesList = new ArrayList<>();
     private static List<TipoAlojamiento> tipoAlojamientosList = new ArrayList<>();
     private static List<TipoVehiculo> tipoVehiculosList = new ArrayList<>();
+    private static List<Alojamiento> alojamientosList = new ArrayList<>();
 
     private static boolean didRun = false;
 
@@ -92,7 +95,7 @@ public class CampingService {
     @GET
     @Path("/tipo-alojamientos")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllAlojamientos() {
+    public Response getAllTiposAlojamientos() {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
         ResponseRequired requiredResponse = new ResponseRequired(200, tipoAlojamientosList);
         String jsonResponse = gson.toJson(requiredResponse);
@@ -460,5 +463,81 @@ public class CampingService {
             String jsonResponse = gson.toJson(requiredResponse);
             return Response.status(404).entity(jsonResponse).build();
         }
+    }
+
+    @GET
+    @Path("/alojamientos")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllAlojamientos() {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        ResponseRequired requiredResponse = new ResponseRequired(200, alojamientosList);
+        String jsonResponse = gson.toJson(requiredResponse);
+        return Response.status(200).entity(jsonResponse).build();
+    }
+
+    @POST
+    @Path("/alojamientos")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createAlojamientoWithConditions(String requestBody) {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        Alojamiento nuevoAlojamiento = gson.fromJson(requestBody, Alojamiento.class);
+
+        boolean existingRepresentative = false;
+        for (Representante representante : representantesList) {
+            if (representante.getRut().equals(nuevoAlojamiento.getRut())) {
+                existingRepresentative = true;
+                break;
+            }
+        }
+
+        if (!existingRepresentative) {
+            ResponseRequired requiredResponse = new ResponseRequired(409, "Previous representative with provided RUT not found");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(409).entity(jsonResponse).build();
+        }
+
+        boolean tipoAlojamientoExists = false;
+        for (TipoAlojamiento tipo : tipoAlojamientosList) {
+            if (tipo.getIdTipoAlojamiento() == nuevoAlojamiento.getIdTipoAlojamiento()) {
+                tipoAlojamientoExists = true;
+                break;
+            }
+        }
+
+        if (!tipoAlojamientoExists) {
+            ResponseRequired requiredResponse = new ResponseRequired(409, "Provided TipoAlojamiento not found");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(409).entity(jsonResponse).build();
+        }
+
+        boolean tipoVehiculoExists = false;
+        for (TipoVehiculo tipo : tipoVehiculosList) {
+            if (tipo.getIdTipoVehiculo() == nuevoAlojamiento.getIdTipoVehiculo()) {
+                tipoVehiculoExists = true;
+                break;
+            }
+        }
+
+        if (!tipoVehiculoExists) {
+            ResponseRequired requiredResponse = new ResponseRequired(409, "Provided TipoVehiculo not found");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(409).entity(jsonResponse).build();
+        }
+        
+        if (nuevoAlojamiento.getDias() < 1) {
+            ResponseRequired requiredResponse = new ResponseRequired(409, "Dias must be greater than 0");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(409).entity(jsonResponse).build();
+        }
+        
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = currentDateTime.format(formatter);
+        nuevoAlojamiento.setFechaIngreso(formattedDateTime);
+
+        alojamientosList.add(nuevoAlojamiento);
+        ResponseRequired requiredResponse = new ResponseRequired(200, "Alojamiento added successfully");
+        String jsonResponse = gson.toJson(requiredResponse);
+        return Response.status(200).entity(jsonResponse).build();
     }
 }
