@@ -88,4 +88,32 @@ public class CampingService {
         String jsonResponse = gson.toJson(requiredResponse);
         return Response.status(200).entity(jsonResponse).build();
     }
+
+    @POST
+    @Path("/alojamientos")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addTipoAlojamiento(String requestBody) {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        TipoAlojamiento nuevoTipoAlojamiento = gson.fromJson(requestBody, TipoAlojamiento.class);
+
+        boolean exists = false;
+        for (TipoAlojamiento tipo : tipoAlojamientosList) {
+            if (tipo.getIdTipoAlojamiento() == nuevoTipoAlojamiento.getIdTipoAlojamiento()) {
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists) {
+            tipoAlojamientosList.add(nuevoTipoAlojamiento);
+            ResponseRequired requiredResponse = new ResponseRequired(200, "TipoAlojamiento added successfully");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(400, "IdTipoAlojamiento already exists");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(400).entity(jsonResponse).build();
+        }
+    }
+
 }
