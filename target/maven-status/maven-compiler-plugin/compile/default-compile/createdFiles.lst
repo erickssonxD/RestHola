@@ -1,4 +1,8 @@
-com\iplacex\resthola\CampingService$ResponseRequired.class
-com\iplacex\resthola\Insumo.class
+com\iplacex\resthola\TipoVehiculo.class
 com\iplacex\resthola\Usuario.class
+com\iplacex\resthola\TipoAlojamiento.class
+com\iplacex\resthola\CampingService$ResponseRequired.class
+com\iplacex\resthola\Representante.class
+com\iplacex\resthola\Alojamiento.class
+com\iplacex\resthola\Insumo.class
 com\iplacex\resthola\CampingService.class

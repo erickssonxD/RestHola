@@ -22,19 +22,28 @@ public class CampingService {
 
     private static List<Usuario> usuariosList = new ArrayList<>();
     private static List<Representante> representantesList = new ArrayList<>();
+    private static List<TipoAlojamiento> tipoAlojamientosList = new ArrayList<>();
+    private static boolean didRun = false;
 
     @PostConstruct
     public void initialize() {
-        usuariosList.add(new Usuario("ltrace", "user1@example.com", "John", "Trace"));
-        usuariosList.add(new Usuario("lstewart", "user2@example.com", "Linda", "Stewart"));
-        usuariosList.add(new Usuario("pcol", "user3@example.com", "Phil", "Col"));
-        usuariosList.add(new Usuario("ssto", "user4@example.com", "Stan", "Sto"));
+        if (didRun == false) {
+            usuariosList.add(new Usuario("ltrace", "user1@example.com", "John", "Trace"));
+            usuariosList.add(new Usuario("lstewart", "user2@example.com", "Linda", "Stewart"));
+            usuariosList.add(new Usuario("pcol", "user3@example.com", "Phil", "Col"));
+            usuariosList.add(new Usuario("ssto", "user4@example.com", "Stan", "Sto"));
 
-        representantesList.add(new Representante("1-9", "John", "Trace", "+5691"));
-        representantesList.add(new Representante("2-7", "Linda", "Stewart", "+5692"));
-        representantesList.add(new Representante("3-5", "Phil", "Col", "+5693"));
-        representantesList.add(new Representante("4-3", "Stan", "Sto", "+5694"));
+            representantesList.add(new Representante("1-9", "John", "Trace", "+5691"));
+            representantesList.add(new Representante("2-7", "Linda", "Stewart", "+5692"));
+            representantesList.add(new Representante("3-5", "Phil", "Col", "+5693"));
+            representantesList.add(new Representante("4-3", "Stan", "Sto", "+5694"));
 
+            tipoAlojamientosList.add(new TipoAlojamiento(1, "Camping"));
+            tipoAlojamientosList.add(new TipoAlojamiento(2, "Cabaña"));
+            tipoAlojamientosList.add(new TipoAlojamiento(3, "Departamento"));
+
+            didRun = true;
+        }
     }
 
     public class ResponseRequired {
@@ -68,22 +77,6 @@ public class CampingService {
         ResponseRequired requiredResponse = new ResponseRequired(200, "Usuario added successfully");
         String jsonResponse = gson.toJson(requiredResponse);
         return Response.status(200).entity(jsonResponse).build();
-    }
-
-    @GET
-    @Path("/representantes")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllRepresentantes() {
-        return Response.status(200).entity(representantesList).build();
-    }
-
-    @POST
-    @Path("/representantes")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response crearRepresentante(String nuevoRepresentante) {
-        // Add representative creation logic here
-        return Response.status(201).entity("Representante created successfully").build();
     }
 
 }
