@@ -9,48 +9,47 @@ package com.iplacex.resthola;
  * @author Erick
  */
 public class Representante {
+    private String Rut;
+    private String Nombres;
+    private String Apellidos;
+    private String Telefono;
 
-    private String rut;
-    private String nombres;
-    private String apellidos;
-    private String telefono;
-
-    public Representante(String rut, String nombres, String apellidos, String telefono) {
-        this.rut = rut;
-        this.nombres = nombres;
-        this.apellidos = apellidos;
-        this.telefono = telefono;
+    public Representante(String Rut, String Nombres, String Apellidos, String Telefono) {
+        this.Rut = Rut;
+        this.Nombres = Nombres;
+        this.Apellidos = Apellidos;
+        this.Telefono = Telefono;
     }
 
     public String getRut() {
-        return rut;
+        return Rut;
     }
 
-    public void setRut(String rut) {
-        this.rut = rut;
+    public void setRut(String Rut) {
+        this.Rut = Rut;
     }
 
     public String getNombres() {
-        return nombres;
+        return Nombres;
     }
 
-    public void setNombres(String nombres) {
-        this.nombres = nombres;
+    public void setNombres(String Nombres) {
+        this.Nombres = Nombres;
     }
 
     public String getApellidos() {
-        return apellidos;
+        return Apellidos;
     }
 
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
+    public void setApellidos(String Apellidos) {
+        this.Apellidos = Apellidos;
     }
 
     public String getTelefono() {
-        return telefono;
+        return Telefono;
     }
 
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
+    public void setTelefono(String Telefono) {
+        this.Telefono = Telefono;
     }
 }
