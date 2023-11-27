@@ -340,4 +340,125 @@ public class CampingService {
             return Response.status(404).entity(jsonResponse).build();
         }
     }
+
+    @GET
+    @Path("/representantes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllRepresentantes() {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        ResponseRequired requiredResponse = new ResponseRequired(200, representantesList);
+        String jsonResponse = gson.toJson(requiredResponse);
+        return Response.status(200).entity(jsonResponse).build();
+    }
+
+    @POST
+    @Path("/representantes")
+
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response addRepresentante(String requestBody) {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        Representante nuevoRepresentante = gson.fromJson(requestBody, Representante.class);
+
+        boolean exists = false;
+        for (Representante representante : representantesList) {
+            if (representante.getRut().equals(nuevoRepresentante.getRut())) {
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists) {
+            representantesList.add(nuevoRepresentante);
+            ResponseRequired requiredResponse = new ResponseRequired(200, "Representante added successfully");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(409, "Rut already exists");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(409).entity(jsonResponse).build();
+        }
+    }
+
+    @GET
+    @Path("/representantes/{rut}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRepresentanteByRut(@PathParam("rut") String rut) {
+        Representante foundRepresentante = null;
+        for (Representante representante : representantesList) {
+            if (representante.getRut().equals(rut)) {
+                foundRepresentante = representante;
+                break;
+            }
+        }
+        if (foundRepresentante != null) {
+            ResponseRequired requiredResponse = new ResponseRequired(200, foundRepresentante);
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(404, "Representante not found");
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
+    }
+
+    @PUT
+    @Path("/representantes/{rut}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateRepresentanteByRut(@PathParam("rut") String rut, String requestBody) {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        Representante updatedRepresentante = gson.fromJson(requestBody, Representante.class);
+
+        if (!updatedRepresentante.getRut().equals(rut)) {
+            ResponseRequired requiredResponse = new ResponseRequired(400, "RUT in request body does not match RUT in URL");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(400).entity(jsonResponse).build();
+        }
+
+        boolean updated = false;
+        for (int i = 0; i < representantesList.size(); i++) {
+            Representante representante = representantesList.get(i);
+            if (representante.getRut().equals(rut)) {
+                representantesList.set(i, updatedRepresentante);
+                updated = true;
+                break;
+            }
+        }
+
+        if (updated) {
+            ResponseRequired requiredResponse = new ResponseRequired(200, "Representante updated successfully");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(404, "Representante not found");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
+    }
+
+    @DELETE
+    @Path("/representantes/{rut}")
+    public Response removeRepresentanteByRut(@PathParam("rut") String rut) {
+        boolean removed = false;
+        for (Iterator<Representante> iterator = representantesList.iterator(); iterator.hasNext();) {
+            Representante representante = iterator.next();
+            if (representante.getRut().equals(rut)) {
+                iterator.remove();
+                removed = true;
+                break;
+            }
+        }
+        if (removed) {
+            ResponseRequired requiredResponse = new ResponseRequired(200, "Representante removed successfully");
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(404, "Representante not found");
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
+    }
 }
