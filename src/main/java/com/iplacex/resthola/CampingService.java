@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import javax.annotation.PostConstruct;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 
 @Path("/camping")
@@ -224,4 +225,119 @@ public class CampingService {
         }
     }
 
+    @GET
+    @Path("/tipo-vehiculos/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTipoVehiculoById(@PathParam("id") int id) {
+        TipoVehiculo foundTipoVehiculo = null;
+        for (TipoVehiculo tipo : tipoVehiculosList) {
+            if (tipo.getIdTipoVehiculo() == id) {
+                foundTipoVehiculo = tipo;
+                break;
+            }
+        }
+        if (foundTipoVehiculo != null) {
+            ResponseRequired requiredResponse = new ResponseRequired(200, foundTipoVehiculo);
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(404, "TipoVehiculo not found");
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
+    }
+
+    @GET
+    @Path("/tipo-alojamientos/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTipoAlojamientoById(@PathParam("id") int id) {
+        TipoAlojamiento foundTipoAlojamiento = null;
+        for (TipoAlojamiento tipo : tipoAlojamientosList) {
+            if (tipo.getIdTipoAlojamiento() == id) {
+                foundTipoAlojamiento = tipo;
+                break;
+            }
+        }
+        if (foundTipoAlojamiento != null) {
+            ResponseRequired requiredResponse = new ResponseRequired(200, foundTipoAlojamiento);
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(404, "TipoAlojamiento not found");
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
+    }
+
+    @PUT
+    @Path("/tipo-vehiculos/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateTipoVehiculoById(@PathParam("id") int id, String requestBody) {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        TipoVehiculo updatedTipoVehiculo = gson.fromJson(requestBody, TipoVehiculo.class);
+
+        if (updatedTipoVehiculo.getIdTipoVehiculo() != id) {
+            ResponseRequired requiredResponse = new ResponseRequired(400, "ID in request body does not match ID in URL");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(400).entity(jsonResponse).build();
+        }
+
+        boolean updated = false;
+        for (int i = 0; i < tipoVehiculosList.size(); i++) {
+            TipoVehiculo tipo = tipoVehiculosList.get(i);
+            if (tipo.getIdTipoVehiculo() == id) {
+                tipoVehiculosList.set(i, updatedTipoVehiculo);
+                updated = true;
+                break;
+            }
+        }
+
+        if (updated) {
+            ResponseRequired requiredResponse = new ResponseRequired(200, "TipoVehiculo updated successfully");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(404, "TipoVehiculo not found");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
+    }
+
+    @PUT
+    @Path("/tipo-alojamientos/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateTipoAlojamientoById(@PathParam("id") int id, String requestBody) {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        TipoAlojamiento updatedTipoAlojamiento = gson.fromJson(requestBody, TipoAlojamiento.class);
+
+        if (updatedTipoAlojamiento.getIdTipoAlojamiento() != id) {
+            ResponseRequired requiredResponse = new ResponseRequired(400, "ID in request body does not match ID in URL");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(400).entity(jsonResponse).build();
+        }
+
+        boolean updated = false;
+        for (int i = 0; i < tipoAlojamientosList.size(); i++) {
+            TipoAlojamiento tipo = tipoAlojamientosList.get(i);
+            if (tipo.getIdTipoAlojamiento() == id) {
+                tipoAlojamientosList.set(i, updatedTipoAlojamiento);
+                updated = true;
+                break;
+            }
+        }
+
+        if (updated) {
+            ResponseRequired requiredResponse = new ResponseRequired(200, "TipoAlojamiento updated successfully");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(404, "TipoAlojamiento not found");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
+    }
 }
