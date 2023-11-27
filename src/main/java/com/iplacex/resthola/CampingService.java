@@ -475,12 +475,109 @@ public class CampingService {
         return Response.status(200).entity(jsonResponse).build();
     }
 
+    @GET
+    @Path("/alojamientos/nombreagrupacion/{nombre}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAlojamientoByNombreAgrupacion(@PathParam("nombre") String nombreAgrupacion) {
+        List<Alojamiento> alojamientosByNombreAgrupacion = new ArrayList<>();
+
+        for (Alojamiento alojamiento : alojamientosList) {
+            if (alojamiento.getNombreAgrupacion().equalsIgnoreCase(nombreAgrupacion)) {
+                alojamientosByNombreAgrupacion.add(alojamiento);
+            }
+        }
+
+        if (!alojamientosByNombreAgrupacion.isEmpty()) {
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            ResponseRequired requiredResponse = new ResponseRequired(200, alojamientosByNombreAgrupacion);
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(404, "No Alojamiento found for the given NombreAgrupacion");
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
+    }
+
+    @PUT
+    @Path("/alojamientos/{nombreAgrupacion}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateAlojamientoByNombreAgrupacion(@PathParam("nombreAgrupacion") String nombreAgrupacion, String requestBody) {
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+        Alojamiento updatedAlojamiento = gson.fromJson(requestBody, Alojamiento.class);
+
+        boolean found = false;
+        for (Alojamiento alojamiento : alojamientosList) {
+            if (alojamiento.getNombreAgrupacion().equalsIgnoreCase(nombreAgrupacion)) {
+                // Update fields for the found Alojamiento
+                alojamiento.setIdTipoVehiculo(updatedAlojamiento.getIdTipoVehiculo());
+                alojamiento.setIdTipoAlojamiento(updatedAlojamiento.getIdTipoAlojamiento());
+                alojamiento.setDias(updatedAlojamiento.getDias());
+
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            ResponseRequired requiredResponse = new ResponseRequired(200, "Alojamiento updated successfully");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            ResponseRequired requiredResponse = new ResponseRequired(404, "Alojamiento not found for the given NombreAgrupacion");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
+    }
+
+    @DELETE
+    @Path("/alojamientos/{nombreAgrupacion}")
+    public Response removeAlojamientoByNombreAgrupacion(@PathParam("nombreAgrupacion") String nombreAgrupacion) {
+        boolean removed = false;
+
+        for (Iterator<Alojamiento> iterator = alojamientosList.iterator(); iterator.hasNext();) {
+            Alojamiento alojamiento = iterator.next();
+            if (alojamiento.getNombreAgrupacion().equalsIgnoreCase(nombreAgrupacion)) {
+                iterator.remove();
+                removed = true;
+                break;
+            }
+        }
+
+        if (removed) {
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            ResponseRequired requiredResponse = new ResponseRequired(200, "Alojamiento removed successfully");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(200).entity(jsonResponse).build();
+        } else {
+            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+            ResponseRequired requiredResponse = new ResponseRequired(404, "Alojamiento not found for the given NombreAgrupacion");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(404).entity(jsonResponse).build();
+        }
+    }
+
     @POST
     @Path("/alojamientos")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createAlojamientoWithConditions(String requestBody) {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
         Alojamiento nuevoAlojamiento = gson.fromJson(requestBody, Alojamiento.class);
+
+        boolean existingAlojamiento = false;
+        for (Alojamiento alojamiento : alojamientosList) {
+            if (alojamiento.getNombreAgrupacion().equalsIgnoreCase(nuevoAlojamiento.getNombreAgrupacion())) {
+                existingAlojamiento = true;
+                break;
+            }
+        }
+
+        if (existingAlojamiento) {
+            ResponseRequired requiredResponse = new ResponseRequired(409, "Alojamiento with provided NombreAgrupacion already exists");
+            String jsonResponse = gson.toJson(requiredResponse);
+            return Response.status(409).entity(jsonResponse).build();
+        }
 
         boolean existingRepresentative = false;
         for (Representante representante : representantesList) {
@@ -539,30 +636,5 @@ public class CampingService {
         ResponseRequired requiredResponse = new ResponseRequired(200, "Alojamiento added successfully");
         String jsonResponse = gson.toJson(requiredResponse);
         return Response.status(200).entity(jsonResponse).build();
-    }
-
-    @GET
-    @Path("/alojamientos/nombreagrupacion/{nombre}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getAlojamientoByNombreAgrupacion(@PathParam("nombre") String nombreAgrupacion) {
-        List<Alojamiento> alojamientosByNombreAgrupacion = new ArrayList<>();
-
-        for (Alojamiento alojamiento : alojamientosList) {
-            if (alojamiento.getNombreAgrupacion().equalsIgnoreCase(nombreAgrupacion)) {
-                alojamientosByNombreAgrupacion.add(alojamiento);
-            }
-        }
-
-        if (!alojamientosByNombreAgrupacion.isEmpty()) {
-            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-            ResponseRequired requiredResponse = new ResponseRequired(200, alojamientosByNombreAgrupacion);
-            String jsonResponse = gson.toJson(requiredResponse);
-            return Response.status(200).entity(jsonResponse).build();
-        } else {
-            ResponseRequired requiredResponse = new ResponseRequired(404, "No Alojamiento found for the given NombreAgrupacion");
-            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-            String jsonResponse = gson.toJson(requiredResponse);
-            return Response.status(404).entity(jsonResponse).build();
-        }
     }
 }
