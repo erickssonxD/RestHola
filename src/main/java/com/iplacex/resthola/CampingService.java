@@ -505,7 +505,7 @@ public class CampingService {
     }
 
     @PUT
-    @Path("/alojamientos/{nombreAgrupacion}")
+    @Path("/alojamientos/nombreagrupacion/{nombreAgrupacion}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateAlojamientoByNombreAgrupacion(@PathParam("nombreAgrupacion") String nombreAgrupacion, String requestBody) {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
@@ -536,7 +536,7 @@ public class CampingService {
     }
 
     @DELETE
-    @Path("/alojamientos/{nombreAgrupacion}")
+    @Path("/alojamientos/nombreagrupacion/{nombreAgrupacion}")
     public Response removeAlojamientoByNombreAgrupacion(@PathParam("nombreAgrupacion") String nombreAgrupacion) {
         boolean removed = false;
 
